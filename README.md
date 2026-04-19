@@ -120,6 +120,7 @@ occasion-based-product-recommender/
 └── components/
 └── ProductCard.jsx       
 
+
 ## AI Tools Used
 - **Groq API (LLaMA 3.3 70B)** — Primary LLM-based product scoring
 - **scikit-learn TF-IDF** — Fallback semantic similarity scoring
