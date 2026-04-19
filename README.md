@@ -110,15 +110,15 @@ Health check endpoint.
 
 occasion-based-product-recommender/
 ├── Backend/
-│   ├── main.py           # FastAPI server & API endpoints
-│   ├── recommender.py    # Hybrid recommendation logic
-│   ├── products.json     # Product catalog data
-│   └── requirements.txt  # Python dependencies
+│   ├── main.py           
+│   ├── recommender.py   
+│   ├── products.json    
+│   └── requirements.txt  
 └── frontend/
 └── src/
-├── App.jsx                    # Main UI component
+├── App.jsx                   
 └── components/
-└── ProductCard.jsx        # Product card component
+└── ProductCard.jsx       
 
 ## AI Tools Used
 - **Groq API (LLaMA 3.3 70B)** — Primary LLM-based product scoring
