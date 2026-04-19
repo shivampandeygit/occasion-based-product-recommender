@@ -197,8 +197,8 @@ export default function App() {
         {/* Hero Section - title, subtitle, search */}
         <div className="hero">
           <div className="badge">🎁 Gift Discovery</div>
-          <h1>Find Gifts for Every <span>Occasion</span></h1>
-          <p>Select an occasion below and get AI-powered product recommendations.</p>
+          <h1>Occasion-Based <span>Product Recommender</span></h1>
+          <p>Select an occasion and discover perfectly matched products from our catalog.</p>
 
           {/* Search Row - occasion dropdown + search button */}
           <div className="search-row">
