@@ -106,19 +106,21 @@ Health check endpoint.
 }
 ```
 
-## Project Structure:
+## Project Structure
 
+```
 occasion-based-product-recommender/
 ├── Backend/
-│   ├── main.py           
-│   ├── recommender.py   
-│   ├── products.json    
-│   └── requirements.txt  
+│   ├── main.py              # FastAPI server & API endpoints
+│   ├── recommender.py       # Hybrid recommendation logic
+│   ├── products.json        # Product catalog data
+│   └── requirements.txt     # Python dependencies
 └── frontend/
-└── src/
-├── App.jsx                   
-└── components/
-└── ProductCard.jsx       
+    └── src/
+        ├── App.jsx                   # Main UI component
+        └── components/
+            └── ProductCard.jsx       # Product card component
+```
 
 
 ## AI Tools Used
