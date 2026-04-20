@@ -132,4 +132,4 @@ occasion-based-product-recommender/
 ## AI Tools Used
 - **Groq API (LLaMA 3.3 70B)** — Primary LLM-based product scoring
 - **scikit-learn TF-IDF** — Fallback semantic similarity scoring
-- **GitHub Copilot** — Used for coding and autocompletion during development
+- **ChatGPT** — Used for coding and autocompletion during development
