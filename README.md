@@ -16,6 +16,8 @@ A hybrid approach is used:
 
 2. **TF-IDF Cosine Similarity (Fallback):** If the Groq API quota is exceeded, TF-IDF vectorization is used to compute cosine similarity between the occasion text and each product's name, description, and short description. This ensures recommendations are always available even without API access.
 
+3. **Occasion-Name Boosting & Penalty (Post-processing):** After scoring, products whose name contains the searched occasion are boosted to 10/10. Products belonging to a different occasion are penalized to 0. A manual keyword map further ensures relevant products always appear.
+
 Products with a relevance score of 6 or above are returned, sorted by score descending, top 10 results shown.
 
 ## Design Decisions
@@ -37,6 +39,12 @@ A hybrid approach was chosen to balance accuracy and reliability:
 
 - **Why Occasion-Name Boosting?**
   Products whose name directly contains the occasion keyword (e.g., "Holi Dry Fruits Hampers" for Holi) are automatically boosted to a score of 9. This ensures catalog-specific products always appear at the top.
+
+  - **Why Occasion-Name Boosting & Penalty?**
+  Products whose name directly contains the occasion keyword (e.g., "Diwali Dry Fruits Hampers" for Diwali) are boosted to 10/10 and appear at the top. Products belonging to a different occasion (e.g., "Christmas Hampers" appearing in Diwali results) are penalized to 0 to avoid irrelevant results.
+
+- **Why Manual Occasion-Product Mapping?**
+  A curated keyword map ensures products relevant to each occasion are always surfaced even when the LLM gives conservative scores. This acts as a third layer of accuracy on top of LLM + TF-IDF.
 
 ## Setup Instructions
 
@@ -106,24 +114,21 @@ Health check endpoint.
 }
 ```
 
-## Project Structure
+## Project Structure:
 
-```
 occasion-based-product-recommender/
 ├── Backend/
-│   ├── main.py              # FastAPI server & API endpoints
-│   ├── recommender.py       # Hybrid recommendation logic
-│   ├── products.json        # Product catalog data
-│   └── requirements.txt     # Python dependencies
+│   ├── main.py           # FastAPI server & API endpoints
+│   ├── recommender.py    # Hybrid recommendation logic
+│   ├── products.json     # Product catalog data
+│   └── requirements.txt  # Python dependencies
 └── frontend/
-    └── src/
-        ├── App.jsx                   # Main UI component
-        └── components/
-            └── ProductCard.jsx       # Product card component
-```
-
+└── src/
+├── App.jsx                    # Main UI component
+└── components/
+└── ProductCard.jsx        # Product card component
 
 ## AI Tools Used
 - **Groq API (LLaMA 3.3 70B)** — Primary LLM-based product scoring
 - **scikit-learn TF-IDF** — Fallback semantic similarity scoring
-- **ChatGPT** — Used for coding and autocompletion during development
+- **GitHub Copilot** — Used for coding and autocompletion during development
