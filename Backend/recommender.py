@@ -16,6 +16,27 @@ load_dotenv()
 # Initialize Groq client with API key
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+# All known occasion keywords - used for cross-occasion penalty
+ALL_OCCASION_KEYWORDS = [
+    "holi", "diwali", "christmas", "birthday", "wedding",
+    "anniversary", "valentine", "engagement", "baby shower", "housewarming"
+]
+
+# Manual occasion to product category mapping for accurate recommendations
+OCCASION_PRODUCT_MAP = {
+    "birthday": ["chocolate", "flower", "perfume", "watch", "jewelry", "necklace", "bracelet", "earring", "candle", "teddy", "plush", "rose", "tulip", "bouquet", "gift card", "greeting"],
+    "wedding": ["jewelry", "necklace", "bracelet", "earring", "perfume", "saree", "kurti", "suit", "rose", "bouquet", "couple", "gift"],
+    "diwali": ["diwali", "dry fruit", "hamper", "chocolate", "candle", "gift", "jewelry", "necklace", "sweet"],
+    "holi": ["holi", "dry fruit", "hamper", "chocolate", "sweet"],
+    "christmas": ["christmas", "dry fruit", "hamper", "chocolate", "candle", "gift card", "greeting"],
+    "anniversary": ["jewelry", "necklace", "bracelet", "watch", "perfume", "couple", "rose", "candle", "personalized", "custom"],
+    "valentine's day": ["rose", "forever rose", "chocolate", "perfume", "couple", "candle", "jewelry", "bracelet"],
+    "baby shower": ["baby shower", "newborn", "soft toy", "teddy", "plush", "toy", "gift"],
+    "engagement": ["engagement", "jewelry", "necklace", "flower", "rose", "perfume", "couple"],
+    "housewarming": ["housewarming", "plant", "candle", "bamboo", "organic", "gift", "decor"],
+    "office party": ["pen", "notebook", "journal", "gift card", "chocolate", "snack"],
+}
+
 
 def load_products():
     """
@@ -60,8 +81,8 @@ def tfidf_score(products, occasion):
     product_vectors = tfidf_matrix[:-1]
     similarities = cosine_similarity(occasion_vector, product_vectors)[0]
 
-    # Scale similarity scores to 0-10
-    return [round(float(s) * 10, 2) for s in similarities]
+    # Scale similarity scores to 0-10, capped at 10
+    return [round(min(float(s) * 10, 10.0), 2) for s in similarities]
 
 
 def score_batch(batch, occasion):
@@ -147,14 +168,31 @@ def recommend_products(occasion: str):
 
     # Combine all scores
     all_scores = scores1 + scores2
-    
-    # Boost products whose name contains the occasion keyword
+
     occasion_keyword = occasion.lower()
+    occasion_products = OCCASION_PRODUCT_MAP.get(occasion_keyword, [])
+
     for i, product in enumerate(products):
         name = product.get("name", "").lower()
+        desc = (product.get("description", "") + " " + product.get("shortDescription", "")).lower()
+        text = name + " " + desc
+
+        # HIGHEST PRIORITY - product name contains exact occasion keyword
         if occasion_keyword in name:
             if i < len(all_scores):
-                all_scores[i] = max(all_scores[i], 9.0)
+                all_scores[i] = 10.0
+
+        # PENALIZE - product name contains a DIFFERENT occasion keyword
+        elif any(other in name for other in ALL_OCCASION_KEYWORDS if other != occasion_keyword):
+            if i < len(all_scores):
+                all_scores[i] = 0.0
+
+        # MEDIUM BOOST - product matches occasion keywords from manual map
+        elif occasion_products and any(kw in text for kw in occasion_products):
+            if i < len(all_scores):
+                match_count = sum(1 for kw in occasion_products if kw in text)
+                boost = 6.5 + (match_count * 0.3)
+                all_scores[i] = max(all_scores[i], min(boost, 8.9))
 
     # Combine products with their scores
     scored = []
